@@ -1,8 +1,8 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+
 
 // Resetando estilos globais para garantir que ocupe toda a tela
 const GlobalStyle = styled.div`
@@ -14,7 +14,7 @@ const GlobalStyle = styled.div`
 `;
 
 // Container principal - cobrindo 100% da largura e altura
-const LoginContainer = styled.div`
+const CadastroContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,10 +33,10 @@ const LoginContainer = styled.div`
 // Wrapper do formulário
 const FormWrapper = styled.div`
   background: white;
-  border: 1px solid #007bff; 
   padding: 3rem;
+  border: 1px solid  #007bff;
   border-radius: 10px;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.29);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 400px;
   text-align: center;
@@ -48,21 +48,6 @@ const FormWrapper = styled.div`
   @media (max-width: 480px) {
     padding: 1.5rem;
     max-width: 100%;
-  }
-`;
-
-// Link de cadastro estilizado
-const SignupText = styled.p`
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  
-  a {
-    color: #007bff;
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `;
 
@@ -84,7 +69,7 @@ const Input = styled.input`
   border-radius: 5px;
   font-size: 16px;
   box-sizing: border-box;
-
+  
   @media (max-width: 480px) {
     padding: 10px;
     font-size: 14px;
@@ -119,54 +104,69 @@ const ErrorMessage = styled.p`
   font-size: 14px;
 `;
 
-const Login = () => {
+const SuccessMessage = styled.p`
+  color: green;
+  font-size: 14px;
+`;
+
+
+const Cadastro = () => {
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [error, setError] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleCadastro = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", { email, senha });
-      localStorage.setItem("token", response.data.token);
-      navigate("/produtos"); // Redireciona para a página de produtos após login
+      const response = await axios.post("http://localhost:5000/api/register", { nome, email, senha });
+      setMensagem(response.data.message);
+      setErro("");
+      setTimeout(() => navigate("/"), 2000); // Redireciona para login após 2s
     } catch (err) {
-      setError("Email ou senha inválidos.");
+      setErro("Erro ao cadastrar. Tente novamente.");
+      setMensagem("");
     }
   };
 
   return (
     <GlobalStyle>
-      <LoginContainer>
+      <CadastroContainer>
         <FormWrapper>
-          <Title>Login</Title>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          <form onSubmit={handleLogin}>
-            <Input
-              type="email"
-              placeholder="E-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+          <Title>Cadastro</Title>
+          {mensagem && <SuccessMessage>{mensagem}</SuccessMessage>}
+          {erro && <ErrorMessage>{erro}</ErrorMessage>}
+          <form onSubmit={handleCadastro}>
+            <Input 
+              type="text" 
+              placeholder="Nome" 
+              value={nome} 
+              onChange={(e) => setNome(e.target.value)} 
+              required 
             />
-            <Input
-              type="password"
-              placeholder="Senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
+            <Input 
+              type="email" 
+              placeholder="E-mail" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
             />
-            <Button type="submit">Entrar</Button>
+            <Input 
+              type="password" 
+              placeholder="Senha" 
+              value={senha} 
+              onChange={(e) => setSenha(e.target.value)} 
+              required 
+            />
+            <Button type="submit">Cadastrar</Button>
           </form>
-          <SignupText>
-            Ainda não tem conta? <Link to="/cadastro">Cadastre-se aqui</Link>
-          </SignupText>
         </FormWrapper>
-      </LoginContainer>
-    </GlobalStyle>
+      </CadastroContainer>
+    </GlobalStyle>    
   );
 };
 
-export default Login;
+export default Cadastro;
